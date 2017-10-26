@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -14,7 +13,7 @@ import com.example.abc.cryptochange.api.Service;
 import com.example.abc.cryptochange.model.Item;
 import com.example.abc.cryptochange.model.ItemResponse;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,6 +22,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     Spinner allcurrency;
+
+    ArrayList<Item> items = new ArrayList<Item>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +73,22 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
-                    List<Item> items = response.body().getItems();
+
 
                     // Populate items to the spinner
                     allcurrency = (Spinner) findViewById(R.id.currencySpinner);
-                    ArrayAdapter<String> adapter = ArrayAdapter.createFromResource(this, android.R.layout.simple_spinner_item, items);
-                    allcurrency.setAdapter(adapter);
+
+                    CurrencyAdapter currencyAdapter = new CurrencyAdapter(MainActivity.this, android.R.layout.simple_spinner_item, items);
+                    allcurrency.setAdapter(currencyAdapter);
+
+//                    allcurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                            Item selectedItem = items.get(position);
+//                            Toast.makeText(view.getContext(), "Hello", Toast.LENGTH_LONG).show();
+//                        }
+//                    });
+
                 }
 
 
