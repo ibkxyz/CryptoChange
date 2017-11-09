@@ -1,4 +1,4 @@
-package com.example.abc.cryptochange.model;
+package com.example.abc.cryptochange;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -13,30 +13,30 @@ public class Item {
     @Expose
     private String curCode;
 
-    @SerializedName("tSyms")
+    @SerializedName("tsyms")
     @Expose
-    private String tSyms;
+    private String tsyms;
 
-
-    public Item(String curCode, String tSyms){
-        this.curCode = curCode;
-        this.tSyms= tSyms;
-    }
+//
+//    public Item(String curCode, String tSyms){
+//        this.curCode = curCode;
+//        this.tSyms= tSyms;
+//    }
 
     public String getCurCode(){
         return curCode;
     }
-    public void setCurCode(){
+    public void setCurCode(String curCode){
         this.curCode = curCode;
     }
 
 
     public String getTsyms(){
-        return tSyms;
+        return tsyms;
     }
 
-    public void settSyms(String tSyms){
-        this.tSyms = tSyms;
+    public void setTsyms(String tsyms){
+        this.tsyms = tsyms;
     }
 
 }

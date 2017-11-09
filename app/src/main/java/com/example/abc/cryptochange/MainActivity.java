@@ -1,36 +1,40 @@
 package com.example.abc.cryptochange;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.TextView;
 
-import com.example.abc.cryptochange.api.Client;
-import com.example.abc.cryptochange.api.Service;
-import com.example.abc.cryptochange.model.Item;
-import com.example.abc.cryptochange.model.ItemResponse;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     Spinner allcurrency;
+    TextView value;
+    JSONObject jsonObject;
+    JSONArray jsonArray;
 
-    ArrayList<Item> items = new ArrayList<Item>();
+    ArrayList<String> items = new ArrayList<String>();
+    ArrayList<Item> itemm = new ArrayList<Item>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        loadJSON();
+        allcurrency = (Spinner) findViewById(R.id.currencySpinner);
+
+//        value = (TextView) findViewById(R.id.textValue);
+        new cryptoConv().execute();
     }
 
     @Override
@@ -40,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
@@ -48,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_refresh:
                 // Do nothing for now
-
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_about:
@@ -59,50 +61,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void loadJSON() {
-
-        try {
-
-            Client Client = new Client();
-            Service apiService =
-
-                    Client.getClient().create(Service.class);
-
-            Call<ItemResponse> call = apiService.getItems();
-            call.enqueue(new Callback<ItemResponse>() {
-
-                @Override
-                public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
+    private class cryptoConv extends AsyncTask<Void, Void, Void> {
 
 
-                    // Populate items to the spinner
-                    allcurrency = (Spinner) findViewById(R.id.currencySpinner);
+        @Override
+        protected Void doInBackground(Void... params) {
 
-                    CurrencyAdapter currencyAdapter = new CurrencyAdapter(MainActivity.this, android.R.layout.simple_spinner_item, items);
-                    allcurrency.setAdapter(currencyAdapter);
+            jsonObject = CurrencyAdapter.getJSON(CurrencyAdapter.BASE_URL + CurrencyAdapter.PRICE_URL);
+            try {
+                jsonArray = jsonObject.getJSONArray("tsyms");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
 
-//                    allcurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                        @Override
-//                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                            Item selectedItem = items.get(position);
-//                            Toast.makeText(view.getContext(), "Hello", Toast.LENGTH_LONG).show();
-//                        }
-//                    });
+                    Item it = new Item();
 
+                  //  it.setCurCode(jsonObject.optString("curCode"));
+                    it.setTsyms(jsonObject.optString("tsyms"));
+                    itemm.add(it);
+
+
+                    items.add(jsonObject.optString("tsyms"));
                 }
 
+            } catch (JSONException e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
 
-                @Override
-                public void onFailure(Call<ItemResponse> call, Throwable t) {
-                    Log.d("Error", t.getMessage());
-                    Toast.makeText(getApplicationContext(), "Currency Load Failed", Toast.LENGTH_SHORT).show();
-                }
+            return null;
+        }
 
-            });
-        } catch (Exception e) {
-            Log.d("Error", e.getMessage());
-            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+        @Override
+        protected void onPostExecute(Void args) {
+
+
+            allcurrency.setAdapter(new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, items));
+
         }
 
     }
+
 }
